@@ -1,5 +1,4 @@
 ## 1. Sơ đồ User, Shop và Product
-
 ```mermaid
 erDiagram
   Users {
@@ -12,6 +11,8 @@ erDiagram
     string Role
     bool IsActive
     datetime CreatedAt
+    datetime UpdatedAt
+    datetime DeletedAt
   }
   Addresses {
     int Id PK
@@ -23,6 +24,9 @@ erDiagram
     string Ward
     string Detail
     bool IsDefault
+    datetime CreatedAt
+    datetime UpdatedAt
+    datetime DeletedAt
   }
   Shops {
     int Id PK
@@ -32,8 +36,12 @@ erDiagram
     string Logo
     string Description
     string Status
+    float CommissionRate
     float Rating
+    string Province
     datetime CreatedAt
+    datetime UpdatedAt
+    datetime DeletedAt
   }
   Categories {
     int Id PK
@@ -42,6 +50,8 @@ erDiagram
     string Slug
     string Icon
     int SortOrder
+    datetime CreatedAt
+    datetime UpdatedAt
   }
   Products {
     int Id PK
@@ -50,10 +60,13 @@ erDiagram
     string Name
     string Slug
     string Description
+    string Unit
     float BasePrice
     string Status
     int TotalSold
     datetime CreatedAt
+    datetime UpdatedAt
+    datetime DeletedAt
   }
   ProductVariants {
     int Id PK
@@ -63,6 +76,9 @@ erDiagram
     int Stock
     string SKU
     string Images
+    datetime CreatedAt
+    datetime UpdatedAt
+    datetime DeletedAt
   }
   ProductAttributes {
     int Id PK
@@ -79,11 +95,7 @@ erDiagram
   Products ||--o{ ProductVariants : "has"
   Products ||--o{ ProductAttributes : "describes"
 ```
-
----
-
-## 2. Sơ đồ Order, Payment và Review
-
+## 2. Sơ đồ 2Cart, Payment
 ```mermaid
 erDiagram
   Carts {
@@ -96,25 +108,46 @@ erDiagram
     int CartId FK
     int VariantId FK
     int Quantity
+    datetime UpdatedAt
   }
   Orders {
     int Id PK
-    int UserId FK
-    int AddressId FK
-    string Status
-    float TotalAmount
-    float ShippingFee
+    int BuyerId FK
+    string PaymentMethod
+    string PaymentStatus
+    float GrandTotal
     string Note
     datetime CreatedAt
+    datetime UpdatedAt
+  }
+  ShopOrders {
+    int Id PK
+    int OrderId FK
+    int ShopId FK
+    string ShipReceiverName
+    string ShipPhone
+    string ShipProvince
+    string ShipDistrict
+    string ShipWard
+    string ShipDetail
+    float SubTotal
+    float ShippingFee
+    float Total
+    string Status
+    string TrackingCode
+    datetime CreatedAt
+    datetime UpdatedAt
   }
   OrderItems {
     int Id PK
-    int OrderId FK
+    int ShopOrderId FK
     int VariantId FK
-    int ShopId FK
+    string SnapshotName
+    string SnapshotSKU
+    float SnapshotPrice
+    string SnapshotImage
     int Quantity
-    float UnitPrice
-    string Status
+    float LineTotal
   }
   Payments {
     int Id PK
@@ -123,31 +156,41 @@ erDiagram
     string Status
     float Amount
     string TransactionId
+    string GatewayResponse
     datetime PaidAt
+    datetime CreatedAt
+    datetime UpdatedAt
   }
   Reviews {
     int Id PK
-    int UserId FK
+    int BuyerId FK
     int ProductId FK
     int OrderItemId FK
     int Rating
     string Comment
     string Images
     datetime CreatedAt
+    datetime UpdatedAt
+    datetime DeletedAt
   }
-  Notifications {
+  PlatformRevenue {
     int Id PK
-    int UserId FK
-    string Type
-    string Title
-    string Body
-    bool IsRead
+    int ShopOrderId FK
+    int ShopId FK
+    float OrderTotal
+    float CommissionRate
+    float CommissionAmount
+    string Status
     datetime CreatedAt
   }
 
   Carts ||--o{ CartItems : "contains"
-  Orders ||--o{ OrderItems : "contains"
+  Orders ||--o{ ShopOrders : "splits into"
+  ShopOrders ||--o{ OrderItems : "contains"
   Orders ||--o| Payments : "paid via"
+  OrderItems ||--o| Reviews : "reviewed from"
+  ShopOrders ||--o| PlatformRevenue : "generates"
+```
   Orders ||--o{ Reviews : "reviewed from"
   OrderItems ||--o| Reviews : "linked to"
 ```
