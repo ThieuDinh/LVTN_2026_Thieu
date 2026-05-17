@@ -8,7 +8,7 @@
 ## 1. Sơ đồ Tổng quan toàn hệ thống
 
 <div align="center">
-  <img src="docs/diagrams/usecase_overview.svg" width="80%" alt="Sơ đồ Use Case Tổng quan">
+  <img src="usecase_overview.svg" width="80%" alt="Sơ đồ Use Case Tổng quan">
   <br>
   <em>Luồng tương tác tổng quát giữa các tác nhân (Buyer, Seller, Admin) và hệ thống</em>
 </div>
@@ -18,7 +18,7 @@
 ## 2. Actor: Buyer (Người mua)
 
 <div align="center">
-  <img src="docs/diagrams/usecase_buyer.svg" width="80%" alt="Sơ đồ chức năng Buyer">
+  <img src="usecase_buyer.svg" width="80%" alt="Sơ đồ chức năng Buyer">
 </div>
 
 ### Mô tả chi tiết chức năng của Người mua
@@ -46,7 +46,7 @@
 ## 3. Actor: Seller (Nhà vườn / Người bán)
 
 <div align="center">
-  <img src="docs/diagrams/usecase_seller.svg" width="80%" alt="Sơ đồ chức năng Seller">
+  <img src="usecase_seller.svg" width="80%" alt="Sơ đồ chức năng Seller">
 </div>
 
 ### Mô tả chi tiết chức năng của Nhà vườn
@@ -74,7 +74,7 @@
 ## 4. Actor: Admin (Quản trị viên sàn)
 
 <div align="center">
-  <img src="docs/diagrams/usecase_admin.svg" width="80%" alt="Sơ đồ chức năng Admin">
+  <img src="usecase_admin.svg" width="80%" alt="Sơ đồ chức năng Admin">
 </div>
 
 ### Mô tả chi tiết chức năng của Quản trị viên
