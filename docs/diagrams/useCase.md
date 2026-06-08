@@ -30,13 +30,13 @@
 
 **Mua sắm**
 * Người mua có thể tìm kiếm nhanh các mặt hàng nông sản dựa trên từ khóa tự do, phân loại theo danh mục sản phẩm hoặc lọc theo từng vùng trồng đặc trưng.
-* Hệ thống hiển thị đầy đủ thông tin chi tiết của một sản phẩm bao gồm mô tả chi tiết, các biến thể lựa chọn, thông số thuộc tính, hạn sử dụng cụ thể của lô và các đánh giá thực tế.
+* Hệ thống hiển thị đầy đủ thông tin chi tiết của một sản phẩm bao gồm mô tả chi tiết, các biến thể lựa chọn, thông số thuộc tính và các đánh giá thực tế.
 * Người mua thực hiện chọn chính xác biến thể sản phẩm (khối lượng, quy cách đóng gói) và số lượng mong muốn để thêm vào giỏ hàng cá nhân.
 
 **Đặt hàng & Thanh toán**
 * Người mua tiến hành kiểm tra lại toàn bộ giỏ hàng, chọn địa chỉ giao hàng phù hợp từ sổ địa chỉ, thiết lập phương thức thanh toán để hoàn tất lệnh đặt hàng.
-* Hỗ trợ tích hợp cổng thanh toán trực tuyến giúp người mua thực hiện trả tiền ngay qua môi trường VNPay hoặc ví điện tử MoMo sau khi xác nhận đơn.
-* Người mua có quyền theo dõi chi tiết toàn bộ trạng thái vận chuyển của đơn hàng và thực hiện hủy đơn trực tiếp nếu phía nhà vườn chưa bắt đầu xử lý đóng gói.
+* Hỗ trợ tích hợp cổng thanh toán trực tuyến giúp người mua thực hiện trả tiền ngay.
+* Người mua có quyền theo dõi chi tiết toàn bộ trạng thái vận chuyển của đơn hàng và thực hiện hủy đơn nếu chưa bắt đầu xử lý đóng gói.
 
 **Đánh giá**
 * Sau khi đơn hàng được giao thành công, người mua có quyền để lại phản hồi về sản phẩm thông qua số điểm sao, nội dung nhận xét bằng văn bản kèm theo hình ảnh thực tế.
@@ -53,7 +53,7 @@
 
 **Gian hàng**
 * Đại diện các nhà vườn thực hiện gửi thông tin đăng ký mở gian hàng kinh doanh trên sàn và hồ sơ này bắt buộc phải chờ phía Quản trị viên phê duyệt trước khi đi vào hoạt động.
-* Nhà vườn chủ động quản lý và cập nhật lại bộ nhận diện thương hiệu của shop bao gồm hình ảnh logo, phần mô tả giới thiệu và thông tin vùng trồng thế mạnh.
+* Nhà vườn chủ động quản lý và cập nhật lại bộ nhận diện thương hiệu của shop bao gồm hình ảnh logo, phần mô tả giới thiệu.
 
 **Quản lý sản phẩm**
 * Cho phép nhà vườn tạo mới các sản phẩm nông sản bằng cách khai báo toàn bộ thông tin tổng quan, thiết lập các biến thể (giá cả, tồn kho) và các thuộc tính kỹ thuật đi kèm.
