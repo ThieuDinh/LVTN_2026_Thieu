@@ -1,0 +1,140 @@
+@startuml UseCase_TongQuat
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor<<buyer>> #DFF0D8
+    BackgroundColor<<seller>> #FCF8E3
+    BackgroundColor<<admin>> #F2DEDE
+    BackgroundColor<<shared>> #D9EDF7
+}
+
+title Biểu đồ Use Case tổng quát - Sàn TMĐT Nông sản đa gian hàng
+
+actor "Khách\n(Guest)" as Guest
+actor "Người mua\n(Buyer)" as Buyer
+actor "Nhà vườn\n(Seller)" as Seller
+actor "Quản trị viên\n(Admin)" as Admin
+
+rectangle "Hệ thống Sàn TMĐT Nông sản" {
+
+    ' =============================================
+    ' KHÁCH (Guest - chưa đăng nhập)
+    ' =============================================
+    usecase "Đăng ký tài khoản" as UC_Register <<shared>>
+    usecase "Đăng nhập" as UC_Login <<shared>>
+    usecase "Xem danh sách sản phẩm" as UC_BrowseProduct <<shared>>
+    usecase "Tìm kiếm sản phẩm" as UC_SearchProduct <<shared>>
+    usecase "Xem chi tiết sản phẩm" as UC_ViewProduct <<shared>>
+    usecase "Xem danh mục" as UC_BrowseCategory <<shared>>
+    usecase "Xem gian hàng" as UC_ViewShop <<shared>>
+    usecase "Xem đánh giá sản phẩm" as UC_ViewReview <<shared>>
+
+    ' =============================================
+    ' NGƯỜI MUA (Buyer)
+    ' =============================================
+    usecase "Quản lý hồ sơ cá nhân" as UC_Profile <<buyer>>
+    usecase "Quản lý địa chỉ" as UC_Address <<buyer>>
+    usecase "Thêm sản phẩm vào giỏ" as UC_AddCart <<buyer>>
+    usecase "Quản lý giỏ hàng" as UC_ManageCart <<buyer>>
+    usecase "Đặt hàng" as UC_PlaceOrder <<buyer>>
+    usecase "Thanh toán trực tuyến" as UC_Payment <<buyer>>
+    usecase "Theo dõi đơn hàng" as UC_TrackOrder <<buyer>>
+    usecase "Đánh giá sản phẩm" as UC_WriteReview <<buyer>>
+    usecase "Xem thông báo" as UC_BuyerNotif <<buyer>>
+
+    ' =============================================
+    ' NHÀ VƯỜN (Seller)
+    ' =============================================
+    usecase "Đăng ký mở gian hàng" as UC_RegisterShop <<seller>>
+    usecase "Cập nhật thông tin gian hàng" as UC_UpdateShop <<seller>>
+    usecase "Quản lý sản phẩm" as UC_ManageProduct <<seller>>
+    usecase "Thêm sản phẩm" as UC_AddProduct <<seller>>
+    usecase "Quản lý biến thể" as UC_ManageVariant <<seller>>
+    usecase "Tạo phiếu nhập hàng" as UC_CreateImport <<seller>>
+    usecase "Quản lý tồn kho" as UC_ManageStock <<seller>>
+    usecase "Xác nhận đơn hàng" as UC_ConfirmOrder <<seller>>
+    usecase "Cập nhật trạng thái đơn" as UC_UpdateOrderStatus <<seller>>
+    usecase "Xem doanh thu gian hàng" as UC_ShopRevenue <<seller>>
+    usecase "Xem thông báo" as UC_SellerNotif <<seller>>
+
+    ' =============================================
+    ' QUẢN TRỊ VIÊN (Admin)
+    ' =============================================
+    usecase "Duyệt yêu cầu mở gian hàng" as UC_ApproveShop <<admin>>
+    usecase "Khóa / Mở khóa gian hàng" as UC_LockShop <<admin>>
+    usecase "Quản lý người dùng" as UC_ManageUser <<admin>>
+    usecase "Khóa tài khoản" as UC_LockUser <<admin>>
+    usecase "Quản lý danh mục" as UC_ManageCategory <<admin>>
+    usecase "Ẩn sản phẩm vi phạm" as UC_HideProduct <<admin>>
+    usecase "Xem danh sách đơn hàng" as UC_ViewOrders <<admin>>
+    usecase "Hủy đơn hàng" as UC_CancelOrder <<admin>>
+    usecase "Cài đặt tỷ lệ hoa hồng" as UC_SetCommission <<admin>>
+    usecase "Xem báo cáo doanh thu sàn" as UC_PlatformRevenue <<admin>>
+    usecase "Xem thông báo" as UC_AdminNotif <<admin>>
+}
+
+' =============================================
+' QUAN HỆ ACTOR - USE CASE
+' =============================================
+
+' --- Khách ---
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_BrowseProduct
+Guest --> UC_SearchProduct
+Guest --> UC_ViewProduct
+Guest --> UC_BrowseCategory
+Guest --> UC_ViewShop
+Guest --> UC_ViewReview
+
+' --- Người mua (kế thừa từ Khách) ---
+Guest <|-- Buyer
+
+Buyer --> UC_Profile
+Buyer --> UC_Address
+Buyer --> UC_AddCart
+Buyer --> UC_ManageCart
+Buyer --> UC_PlaceOrder
+Buyer --> UC_TrackOrder
+Buyer --> UC_WriteReview
+Buyer --> UC_BuyerNotif
+
+' --- Nhà vườn ---
+Guest <|-- Seller
+
+Seller --> UC_RegisterShop
+Seller --> UC_UpdateShop
+Seller --> UC_ManageProduct
+Seller --> UC_CreateImport
+Seller --> UC_ManageStock
+Seller --> UC_ConfirmOrder
+Seller --> UC_UpdateOrderStatus
+Seller --> UC_ShopRevenue
+Seller --> UC_SellerNotif
+
+' --- Quản trị viên ---
+Admin --> UC_Login
+Admin --> UC_ApproveShop
+Admin --> UC_LockShop
+Admin --> UC_ManageUser
+Admin --> UC_LockUser
+Admin --> UC_ManageCategory
+Admin --> UC_HideProduct
+Admin --> UC_ViewOrders
+Admin --> UC_CancelOrder
+Admin --> UC_SetCommission
+Admin --> UC_PlatformRevenue
+Admin --> UC_AdminNotif
+
+' =============================================
+' QUAN HỆ INCLUDE / EXTEND
+' =============================================
+
+UC_PlaceOrder ..> UC_ManageCart : <<include>>
+UC_PlaceOrder ..> UC_Payment : <<extend>>
+UC_ManageProduct ..> UC_AddProduct : <<include>>
+UC_ManageProduct ..> UC_ManageVariant : <<include>>
+UC_ManageUser ..> UC_LockUser : <<include>>
+
+@enduml
