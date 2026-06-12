@@ -17,7 +17,7 @@ public class OrderItemBatchConfiguration : IEntityTypeConfiguration<OrderItemBat
         builder.HasOne(ob => ob.OrderItem)
             .WithMany(oi => oi.OrderItemBatches)
             .HasForeignKey(ob => ob.OrderItemId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(ob => ob.ImportOrderItem)
             .WithMany(ii => ii.OrderItemBatches)

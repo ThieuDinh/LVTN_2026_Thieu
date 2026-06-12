@@ -16,7 +16,7 @@ public class ImportOrderItemConfiguration : IEntityTypeConfiguration<ImportOrder
         builder.Property(i => i.CostPrice).HasPrecision(18, 2);
         builder.Property(i => i.Status).IsRequired().HasConversion<string>().HasMaxLength(20);
 
-        builder.HasIndex(i => i.BatchCode).IsUnique();
+        builder.HasIndex(i => i.BatchCode);
 
         builder.HasOne(i => i.ImportOrder)
             .WithMany(o => o.Items)

@@ -20,7 +20,7 @@ public class ImportOrderConfiguration : IEntityTypeConfiguration<ImportOrder>
         builder.Property(i => i.DocumentImages).HasMaxLength(2000);
         builder.Property(i => i.Status).IsRequired().HasConversion<string>().HasMaxLength(20);
 
-        builder.HasIndex(i => i.ImportCode).IsUnique();
+        builder.HasIndex(i => new { i.ShopId, i.ImportCode }).IsUnique();
 
         builder.HasOne(i => i.Shop)
             .WithMany(s => s.ImportOrders)
