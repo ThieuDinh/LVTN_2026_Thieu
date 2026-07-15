@@ -20,5 +20,6 @@ public class Shop : BaseEntity
     public ICollection<ImportOrder> ImportOrders { get; set; } = new List<ImportOrder>();
     public ICollection<ShopOrder> ShopOrders { get; set; } = new List<ShopOrder>();
     public ICollection<PlatformRevenue> PlatformRevenues { get; set; } = new List<PlatformRevenue>();
+    public ICollection<ShopSubscription> ShopSubscriptions { get; set; } = new List<ShopSubscription>();
 }
 

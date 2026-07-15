@@ -8,4 +8,5 @@ public interface IShopService
     Task<Result<ShopResponse>> CreateAsync(int userId, CreateShopRequest request);
     Task<Result<ShopResponse>> UpdateAsync(int shopId, int userId, UpdateShopRequest request);
     Task<Result<ShopResponse>> GetMyShopAsync(int userId);
+    Task<Result<ShopResponse>> GetByIdAsync(int shopId);
 }

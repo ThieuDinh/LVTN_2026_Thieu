@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-light: #D4EDDA;
+  --color-brand: #A8D5B5;
+  --color-brand-dark: #5A8F6A;
+  --color-cream: #FAF8F5;
+}
+
+body {
+  @apply bg-cream text-zinc-800 antialiased selection:bg-brand-light;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}

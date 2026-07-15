@@ -880,6 +880,12 @@ namespace NongSan.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CancelledBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CancelledReason")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -953,6 +959,95 @@ namespace NongSan.Infrastructure.Data.Migrations
                     b.HasIndex("ShopId");
 
                     b.ToTable("ShopOrders", (string)null);
+                });
+
+            modelBuilder.Entity("NongSan.Domain.Entities.ShopSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PlanId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("ShopSubscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("NongSan.Domain.Entities.SubscriptionPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BoostScore")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("CommissionRate")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("MaxProducts")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionPlans", (string)null);
                 });
 
             modelBuilder.Entity("NongSan.Domain.Entities.User", b =>
@@ -1279,6 +1374,25 @@ namespace NongSan.Infrastructure.Data.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NongSan.Domain.Entities.ShopSubscription", b =>
+                {
+                    b.HasOne("NongSan.Domain.Entities.SubscriptionPlan", "Plan")
+                        .WithMany("ShopSubscriptions")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NongSan.Domain.Entities.Shop", "Shop")
+                        .WithMany("ShopSubscriptions")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("Shop");
+                });
+
             modelBuilder.Entity("NongSan.Domain.Entities.Cart", b =>
                 {
                     b.Navigation("Items");
@@ -1342,6 +1456,8 @@ namespace NongSan.Infrastructure.Data.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("ShopOrders");
+
+                    b.Navigation("ShopSubscriptions");
                 });
 
             modelBuilder.Entity("NongSan.Domain.Entities.ShopOrder", b =>
@@ -1349,6 +1465,11 @@ namespace NongSan.Infrastructure.Data.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("PlatformRevenue");
+                });
+
+            modelBuilder.Entity("NongSan.Domain.Entities.SubscriptionPlan", b =>
+                {
+                    b.Navigation("ShopSubscriptions");
                 });
 
             modelBuilder.Entity("NongSan.Domain.Entities.User", b =>

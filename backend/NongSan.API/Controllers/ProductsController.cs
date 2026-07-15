@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NongSan.API.Common;
+using NongSan.Application.Common;
 using NongSan.Application.DTOs.Product;
 using NongSan.Application.Interfaces;
 
@@ -50,6 +51,30 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
+    /// Lấy danh sách tất cả sản phẩm Active (public)
+    /// </summary>
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAll([FromQuery] ProductSearchRequest request)
+    {
+        var result = await _productService.SearchAsync(request);
+
+        return Ok(ApiResponse<PagedResult<ProductResponse>>.Ok(result.Data!));
+    }
+
+    /// <summary>
+    /// Tìm kiếm / duyệt sản phẩm (public)
+    /// </summary>
+    [HttpGet("search")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Search([FromQuery] ProductSearchRequest request)
+    {
+        var result = await _productService.SearchAsync(request);
+
+        return Ok(ApiResponse<PagedResult<ProductResponse>>.Ok(result.Data!));
+    }
+
+    /// <summary>
     /// Xem chi tiết sản phẩm
     /// </summary>
     [HttpGet("{id}")]
@@ -89,6 +114,21 @@ public class ProductsController : ControllerBase
             return BadRequest(ApiResponse<bool>.Fail(result.ErrorMessage!));
 
         return Ok(ApiResponse<bool>.Ok(true, "Xóa sản phẩm thành công"));
+    }
+
+    /// <summary>
+    /// Bật / tắt trạng thái sản phẩm (Active ↔ Draft)
+    /// </summary>
+    [HttpPatch("{id}/toggle-status")]
+    public async Task<IActionResult> ToggleStatus(int id)
+    {
+        var shopId = GetShopId();
+        var result = await _productService.ToggleStatusAsync(id, shopId);
+
+        if (!result.IsSuccess)
+            return BadRequest(ApiResponse<ProductResponse>.Fail(result.ErrorMessage!));
+
+        return Ok(ApiResponse<ProductResponse>.Ok(result.Data!, "Cập nhật trạng thái thành công"));
     }
 
     private int GetShopId()

@@ -10,4 +10,6 @@ public interface IProductService
     Task<Result<ProductResponse>> GetByIdAsync(int productId);
     Task<Result<List<ProductResponse>>> GetByShopAsync(int shopId);
     Task<Result<bool>> DeleteAsync(int productId, int shopId);
+    Task<Result<ProductResponse>> ToggleStatusAsync(int productId, int shopId);
+    Task<Result<PagedResult<ProductResponse>>> SearchAsync(ProductSearchRequest request);
 }

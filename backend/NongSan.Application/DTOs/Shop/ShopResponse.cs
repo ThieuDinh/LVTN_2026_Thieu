@@ -13,4 +13,7 @@ public class ShopResponse
     public decimal CommissionRate { get; set; }
     public float Rating { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int TotalProducts { get; set; }
+    public string OwnerName { get; set; } = string.Empty;
+    public string? NewToken { get; set; }
 }

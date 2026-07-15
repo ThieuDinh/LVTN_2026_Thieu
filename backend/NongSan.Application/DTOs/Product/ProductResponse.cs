@@ -15,6 +15,13 @@ public class ProductResponse
     public DateTime CreatedAt { get; set; }
     public List<ProductVariantResponse> Variants { get; set; } = new();
     public List<ProductAttributeResponse> Attributes { get; set; } = new();
+    public ProductSubscriptionInfo? Subscription { get; set; }
+}
+
+public class ProductSubscriptionInfo
+{
+    public string PlanName { get; set; } = string.Empty;
+    public int BoostScore { get; set; }
 }
 
 public class ProductVariantResponse

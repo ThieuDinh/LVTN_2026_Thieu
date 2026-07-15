@@ -18,6 +18,8 @@ public class ShopOrder : BaseEntity
     public decimal Total { get; set; }
     public ShopOrderStatus Status { get; set; } = ShopOrderStatus.Pending;
     public string? TrackingCode { get; set; }
+    public string? CancelledReason { get; set; }
+    public string? CancelledBy { get; set; } // "Buyer" hoặc "Seller"
 
     public Order Order { get; set; } = null!;
     public Shop Shop { get; set; } = null!;

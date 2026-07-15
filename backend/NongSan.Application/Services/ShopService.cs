@@ -10,10 +10,12 @@ namespace NongSan.Application.Services;
 public class ShopService : IShopService
 {
     private readonly IAppDbContext _context;
+    private readonly ITokenService _tokenService;
 
-    public ShopService(IAppDbContext context)
+    public ShopService(IAppDbContext context, ITokenService tokenService)
     {
         _context = context;
+        _tokenService = tokenService;
     }
 
     public async Task<Result<ShopResponse>> CreateAsync(int userId, CreateShopRequest request)
@@ -26,7 +28,7 @@ public class ShopService : IShopService
             return Result<ShopResponse>.Fail("Bạn đã có shop, không thể tạo thêm.");
 
         // Cập nhật role user thành Seller
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _context.Users.Include(u => u.Shop).FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null)
             return Result<ShopResponse>.Fail("Người dùng không tồn tại.");
 
@@ -50,12 +52,8 @@ public class ShopService : IShopService
         };
 
         _context.Shops.Add(shop);
-
-        // Nâng role lên Seller
-        user.Role = UserRole.Seller;
-
         await _context.SaveChangesAsync();
-
+        
         return Result<ShopResponse>.Ok(MapToResponse(shop));
     }
 
@@ -89,10 +87,25 @@ public class ShopService : IShopService
     public async Task<Result<ShopResponse>> GetMyShopAsync(int userId)
     {
         var shop = await _context.Shops
+            .Include(s => s.Products)
+            .Include(s => s.Owner)
             .FirstOrDefaultAsync(s => s.OwnerId == userId);
 
         if (shop == null)
             return Result<ShopResponse>.Fail("Bạn chưa có shop.");
+
+        return Result<ShopResponse>.Ok(MapToResponse(shop));
+    }
+
+    public async Task<Result<ShopResponse>> GetByIdAsync(int shopId)
+    {
+        var shop = await _context.Shops
+            .Include(s => s.Products)
+            .Include(s => s.Owner)
+            .FirstOrDefaultAsync(s => s.Id == shopId && s.Status == ShopStatus.Active);
+
+        if (shop == null)
+            return Result<ShopResponse>.Fail("Shop không tồn tại.");
 
         return Result<ShopResponse>.Ok(MapToResponse(shop));
     }
@@ -109,6 +122,8 @@ public class ShopService : IShopService
         Status = shop.Status.ToString(),
         CommissionRate = shop.CommissionRate,
         Rating = shop.Rating,
-        CreatedAt = shop.CreatedAt
+        CreatedAt = shop.CreatedAt,
+        TotalProducts = shop.Products.Count(p => p.Status == ProductStatus.Active),
+        OwnerName = shop.Owner?.FullName ?? string.Empty
     };
 }

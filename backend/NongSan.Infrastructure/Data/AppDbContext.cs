@@ -29,6 +29,8 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<PlatformRevenue> PlatformRevenues => Set<PlatformRevenue>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+    public DbSet<ShopSubscription> ShopSubscriptions => Set<ShopSubscription>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

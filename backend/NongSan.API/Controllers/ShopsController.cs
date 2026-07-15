@@ -54,11 +54,26 @@ public class ShopsController : ControllerBase
     /// Lấy thông tin shop của mình
     /// </summary>
     [HttpGet("me")]
-    [Authorize(Roles = "Seller")]
+    [Authorize]
     public async Task<IActionResult> GetMyShop()
     {
         var userId = GetUserId();
         var result = await _shopService.GetMyShopAsync(userId);
+
+        if (!result.IsSuccess)
+            return NotFound(ApiResponse<ShopResponse>.Fail(result.ErrorMessage!));
+
+        return Ok(ApiResponse<ShopResponse>.Ok(result.Data!));
+    }
+
+    /// <summary>
+    /// Lấy thông tin shop theo Id (public)
+    /// </summary>
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var result = await _shopService.GetByIdAsync(id);
 
         if (!result.IsSuccess)
             return NotFound(ApiResponse<ShopResponse>.Fail(result.ErrorMessage!));

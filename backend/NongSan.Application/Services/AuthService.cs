@@ -82,7 +82,8 @@ public class AuthService : IAuthService
             Email = user.Email,
             Role = user.Role.ToString(),
             Token = token,
-            ExpiresAt = _tokenService.GetExpiryDate()
+            ExpiresAt = _tokenService.GetExpiryDate(),
+            ShopId = user.Shop?.Id
         });
     }
 }

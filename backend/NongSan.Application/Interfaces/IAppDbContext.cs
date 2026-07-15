@@ -24,6 +24,8 @@ public interface IAppDbContext
     DbSet<PlatformRevenue> PlatformRevenues { get; }
     DbSet<Review> Reviews { get; }
     DbSet<Notification> Notifications { get; }
+    DbSet<SubscriptionPlan> SubscriptionPlans { get; }
+    DbSet<ShopSubscription> ShopSubscriptions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
