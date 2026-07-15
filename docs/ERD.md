@@ -1,412 +1,324 @@
-# ERD — Sàn Thương Mại Điện Tử Nông Sản (Multi-Vendor)
-
-> **Đề tài:** Xây dựng website sàn thương mại điện tử đa người bán sử dụng ASP.NET Core và React.js  
-> **Phạm vi:** Sản phẩm nông sản (mứt, hạt, kẹo, cà phê, trà...) — định hướng nhà vườn  
-> **Tổng số bảng:** 18 bảng chia 8 nhóm | **Công nghệ:** SQL Server / PostgreSQL
-
----
-
-## Nhóm 1 — Người dùng & Địa chỉ
-
-> Quản lý tài khoản toàn hệ thống. Phân biệt vai trò `Buyer` / `Seller` / `Admin` bằng trường `Role`.  
-> Địa chỉ lưu riêng để Buyer có sổ địa chỉ nhiều dòng, nhưng đơn hàng sẽ **snapshot** lại địa chỉ, không dùng FK trực tiếp.
-
-```mermaid
 erDiagram
-  Users {
-    int       Id              PK
-    string    FullName
-    string    Email
-    string    PasswordHash
-    string    Phone
-    string    Avatar
-    string    Role
-    bool      IsActive
-    datetime  CreatedAt
-    datetime  UpdatedAt
-    datetime  DeletedAt
-  }
+    Users {
+        int Id PK
+        nvarchar FullName
+        nvarchar Email
+        nvarchar PasswordHash
+        nvarchar Phone
+        nvarchar Avatar
+        nvarchar Role
+        bit IsActive
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-  Addresses {
-    int       Id              PK
-    int       UserId          FK
-    string    ReceiverName
-    string    Phone
-    string    Province
-    string    District
-    string    Ward
-    string    Detail
-    bool      IsDefault
-    datetime  CreatedAt
-    datetime  UpdatedAt
-    datetime  DeletedAt
-  }
+    Addresses {
+        int Id PK
+        int UserId FK
+        nvarchar ReceiverName
+        nvarchar Phone
+        nvarchar Province
+        nvarchar District
+        nvarchar Ward
+        nvarchar Detail
+        bit IsDefault
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-  Users ||--o{ Addresses : "has"
-```
+    Carts {
+        int Id PK
+        int UserId FK
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-**Ghi chú:**
-- `Role`: `"Buyer"` | `"Seller"` | `"Admin"` — quyết định giao diện và API được phép gọi
-- `IsActive`: Admin có thể khoá tài khoản mà không xoá dữ liệu
-- `DeletedAt`: Soft delete — query luôn kèm `WHERE DeletedAt IS NULL`
-- `IsDefault`: Địa chỉ mặc định tự động điền khi Buyer checkout
+    CartItems {
+        int Id PK
+        int CartId FK
+        int VariantId FK
+        int Quantity
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
----
+    Categories {
+        int Id PK
+        int ParentId FK
+        nvarchar Name
+        nvarchar Slug
+        nvarchar Icon
+        int SortOrder
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-## Nhóm 2 — Gian hàng & Danh mục
+    Products {
+        int Id PK
+        int ShopId FK
+        int CategoryId FK
+        nvarchar Name
+        nvarchar Slug
+        nvarchar Description
+        nvarchar Unit
+        decimal BasePrice
+        nvarchar Status
+        int TotalSold
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-> Mỗi Seller sở hữu đúng **1 Shop** (nhà vườn). Admin duyệt shop trước khi được phép bán.  
-> Danh mục tự quan hệ để hỗ trợ đa cấp: `Cà phê` → `Arabica` → `Arabica rang xay`.
+    ProductAttributes {
+        int Id PK
+        int ProductId FK
+        nvarchar AttrName
+        nvarchar AttrValue
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-```mermaid
-erDiagram
-  Shops {
-    int       Id              PK
-    int       OwnerId         FK
-    string    Name
-    string    Slug
-    string    Logo
-    string    Description
-    string    Province
-    string    Status
-    float     CommissionRate
-    float     Rating
-    datetime  CreatedAt
-    datetime  UpdatedAt
-    datetime  DeletedAt
-  }
+    ProductVariants {
+        int Id PK
+        int ProductId FK
+        nvarchar Name
+        decimal Price
+        int Stock
+        nvarchar SKU
+        nvarchar Images
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-  Categories {
-    int       Id              PK
-    int       ParentId        FK
-    string    Name
-    string    Slug
-    string    Icon
-    int       SortOrder
-    datetime  CreatedAt
-    datetime  UpdatedAt
-  }
+    Shops {
+        int Id PK
+        int OwnerId FK
+        nvarchar Name
+        nvarchar Slug
+        nvarchar Logo
+        nvarchar Description
+        nvarchar Province
+        nvarchar Status
+        decimal CommissionRate
+        real Rating
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-  Categories ||--o{ Categories : "parent of"
-```
+    SubscriptionPlans {
+        int Id PK
+        nvarchar Name
+        decimal MonthlyPrice
+        decimal CommissionRate
+        int MaxProducts
+        int BoostScore
+        bit IsActive
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-**Ghi chú:**
-- `Status`: `"Pending"` → `"Active"` | `"Suspended"` — Admin duyệt mới cho bán
-- `CommissionRate`: Tỷ lệ hoa hồng sàn thu, mỗi shop có thể khác nhau (vd: 5%)
-- `Province`: Vùng của nhà vườn — lọc theo vùng sản xuất (Đà Lạt, Tây Nguyên...)
-- `ParentId NULL`: Danh mục gốc; `SortOrder`: thứ tự hiển thị trên menu
+    ShopSubscriptions {
+        int Id PK
+        int ShopId FK
+        int PlanId FK
+        datetime2 StartDate
+        datetime2 EndDate
+        nvarchar Status
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
----
+    Orders {
+        int Id PK
+        int BuyerId FK
+        nvarchar PaymentMethod
+        nvarchar PaymentStatus
+        decimal GrandTotal
+        nvarchar Note
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-## Nhóm 3 — Sản phẩm
+    ShopOrders {
+        int Id PK
+        int OrderId FK
+        int ShopId FK
+        nvarchar ShipReceiverName
+        nvarchar ShipPhone
+        nvarchar ShipProvince
+        nvarchar ShipDistrict
+        nvarchar ShipWard
+        nvarchar ShipDetail
+        decimal SubTotal
+        decimal ShippingFee
+        decimal Total
+        nvarchar Status
+        nvarchar TrackingCode
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+        nvarchar CancelledBy
+        nvarchar CancelledReason
+    }
 
-> Sản phẩm thuộc về 1 Shop và 1 danh mục. Mỗi sản phẩm có nhiều **biến thể** (khối lượng, đóng gói)  
-> và nhiều **thuộc tính** mô tả đặc trưng nông sản (vùng trồng, độ rang, thành phần...).
+    OrderItems {
+        int Id PK
+        int ShopOrderId FK
+        int VariantId FK
+        nvarchar SnapshotName
+        nvarchar SnapshotSKU
+        decimal SnapshotPrice
+        nvarchar SnapshotImage
+        int Quantity
+        decimal LineTotal
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-```mermaid
-erDiagram
-  Products {
-    int       Id              PK
-    int       ShopId          FK
-    int       CategoryId      FK
-    string    Name
-    string    Slug
-    string    Description
-    string    Unit
-    float     BasePrice
-    string    Status
-    int       TotalSold
-    datetime  CreatedAt
-    datetime  UpdatedAt
-    datetime  DeletedAt
-  }
+    Payments {
+        int Id PK
+        int OrderId FK
+        nvarchar Method
+        nvarchar Status
+        decimal Amount
+        nvarchar TransactionId
+        nvarchar GatewayResponse
+        datetime2 PaidAt
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-  ProductVariants {
-    int       Id              PK
-    int       ProductId       FK
-    string    Name
-    float     Price
-    int       Stock
-    string    SKU
-    string    Images
-    datetime  CreatedAt
-    datetime  UpdatedAt
-    datetime  DeletedAt
-  }
+    PlatformRevenues {
+        int Id PK
+        int ShopOrderId FK
+        int ShopId FK
+        decimal OrderTotal
+        decimal CommissionRate
+        decimal CommissionAmount
+        nvarchar Status
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-  ProductAttributes {
-    int       Id              PK
-    int       ProductId       FK
-    string    AttrName
-    string    AttrValue
-  }
+    Reviews {
+        int Id PK
+        int BuyerId FK
+        int ProductId FK
+        int OrderItemId FK
+        int Rating
+        nvarchar Comment
+        nvarchar Images
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-  Products ||--o{ ProductVariants   : "has"
-  Products ||--o{ ProductAttributes : "describes"
-```
+    ImportOrders {
+        int Id PK
+        int ShopId FK
+        nvarchar ImportCode
+        nvarchar HarvestSeason
+        nvarchar SupplierName
+        decimal TotalCost
+        nvarchar Note
+        nvarchar DocumentImages
+        nvarchar Status
+        datetime2 ImportedAt
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-**Ghi chú:**
-- `Unit`: Đơn vị bán — `kg`, `hộp`, `túi`, `gói`, `lọ`... đặc trưng nông sản
-- `Stock` trong `ProductVariants`: Tồn kho tổng hợp từ các lô hàng `Active`
-- `SKU`: Mã định danh nội bộ — vd: `CF-ARA-500G`
-- `ProductAttributes`: Dạng key-value tự do — vd: `"Vùng trồng"` / `"Cầu Đất – Đà Lạt"`
-- `Status`: `"Draft"` | `"Active"` | `"OutOfStock"` | `"Banned"`
+    ImportOrderItems {
+        int Id PK
+        int ImportOrderId FK
+        int VariantId FK
+        nvarchar BatchCode
+        int Quantity
+        int RemainingQty
+        decimal CostPrice
+        datetime2 ManufacturedAt
+        datetime2 ExpiredAt
+        nvarchar Status
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
----
+    OrderItemBatches {
+        int Id PK
+        int OrderItemId FK
+        int ImportOrderItemId FK
+        int QuantityUsed
+        nvarchar ExpirySnapshot
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-## Nhóm 4 — Nhập hàng & Lô hàng
+    Notifications {
+        int Id PK
+        int UserId FK
+        nvarchar Type
+        nvarchar Title
+        nvarchar Body
+        bit IsRead
+        datetime2 CreatedAt
+        datetime2 UpdatedAt
+        datetime2 DeletedAt
+    }
 
-> Phản ánh đúng thực tế nhà vườn: **1 chuyến nhập = 1 phiếu** gồm nhiều sản phẩm cùng vụ thu hoạch.  
-> Mỗi dòng `ImportOrderItems` có hạn sử dụng và giá vốn riêng.  
-> Hệ thống xuất kho theo nguyên tắc **FEFO** (First Expired, First Out).
+    %% Relationships Definition
+    Users ||--o{ Addresses : "has"
+    Users ||--o{ Carts : "has"
+    Users ||--o{ Shops : "owns"
+    Users ||--o{ Orders : "places"
+    Users ||--o{ Reviews : "writes"
+    Users ||--o{ Notifications : "receives"
 
-```mermaid
-erDiagram
-  ImportOrders {
-    int       Id              PK
-    int       ShopId          FK
-    string    ImportCode
-    string    HarvestSeason
-    string    SupplierName
-    float     TotalCost
-    string    Note
-    string    DocumentImages
-    string    Status
-    datetime  ImportedAt
-    datetime  CreatedAt
-    datetime  UpdatedAt
-  }
+    Carts ||--o{ CartItems : "contains"
+    ProductVariants ||--o{ CartItems : "added to"
 
-  ImportOrderItems {
-    int       Id              PK
-    int       ImportOrderId   FK
-    int       VariantId       FK
-    string    BatchCode
-    int       Quantity
-    int       RemainingQty
-    float     CostPrice
-    datetime  ManufacturedAt
-    datetime  ExpiredAt
-    string    Status
-    datetime  CreatedAt
-    datetime  UpdatedAt
-  }
+    Categories ||--o{ Categories : "parent of"
+    Categories ||--o{ Products : "categorizes"
+    Shops ||--o{ Products : "sells"
 
-  ImportOrders ||--o{ ImportOrderItems : "contains"
-```
+    Products ||--o{ ProductAttributes : "has"
+    Products ||--o{ ProductVariants : "has"
+    Products ||--o{ Reviews : "receives"
 
-**Ghi chú:**
-- `ImportCode`: Mã phiếu tự sinh — vd: `IMP-2025-0601`
-- `HarvestSeason`: Tên vụ mùa — vd: `"Vụ hè 2025"`, `"Thu hoạch tháng 11"`
-- `DocumentImages`: JSON array URL ảnh chứng từ: hoá đơn VAT, chứng nhận VietGAP...
-- `Status` phiếu: `"Draft"` | `"Confirmed"` — chỉ khi `Confirmed` mới cộng vào tồn kho
-- `ExpiredAt`: Hạn sử dụng từng dòng (mứt 6 tháng, cà phê 12 tháng — khác nhau trong cùng 1 phiếu)
-- `RemainingQty`: Trừ dần mỗi khi xuất hàng; = 0 thì lô `OutOfStock`
-- `Status` lô: `"Active"` | `"NearExpiry"` | `"Expired"` | `"OutOfStock"` — background job cập nhật hàng ngày
-- `CostPrice`: Giá vốn đơn vị — dùng tính lợi nhuận thực của Seller
+    Orders ||--o{ Payments : "paid via"
+    Orders ||--o{ ShopOrders : "split into"
 
----
+    Shops ||--o{ ShopOrders : "fulfills"
+    ShopOrders ||--o{ OrderItems : "contains"
 
-## Nhóm 5 — Giỏ hàng
+    ProductVariants ||--o{ OrderItems : "ordered as"
+    OrderItems ||--o{ Reviews : "reviewed in"
 
-> Mỗi Buyer có đúng **1 giỏ hàng** tồn tại xuyên suốt (không reset sau khi đóng trình duyệt).  
-> Giỏ hàng có thể chứa sản phẩm từ nhiều shop khác nhau.
+    Shops ||--o{ ImportOrders : "imports"
+    ImportOrders ||--o{ ImportOrderItems : "contains"
+    ProductVariants ||--o{ ImportOrderItems : "imported as"
 
-```mermaid
-erDiagram
-  Carts {
-    int       Id              PK
-    int       UserId          FK
-    datetime  UpdatedAt
-  }
+    OrderItems ||--o{ OrderItemBatches : "fulfilled by"
+    ImportOrderItems ||--o{ OrderItemBatches : "supplies"
 
-  CartItems {
-    int       Id              PK
-    int       CartId          FK
-    int       VariantId       FK
-    int       Quantity
-    datetime  UpdatedAt
-  }
+    SubscriptionPlans ||--o{ ShopSubscriptions : "subscribed to"
+    Shops ||--o{ ShopSubscriptions : "has"
 
-  Carts ||--o{ CartItems : "contains"
-```
-
-**Ghi chú:**
-- `VariantId`: Liên kết tới `ProductVariants` — giỏ hàng lưu biến thể cụ thể, không chỉ sản phẩm
-- Khi checkout: so sánh `Quantity` với `ProductVariants.Stock` để kiểm tra còn hàng
-- `UpdatedAt`: Cập nhật mỗi khi thêm/bớt — hiển thị "Cập nhật lúc..."
-
----
-
-## Nhóm 6 — Đơn hàng
-
-> **Thiết kế 2 tầng** để giải quyết bài toán Multi-vendor:  
-> `Orders` = phiên checkout của Buyer (1 lần bấm đặt hàng).  
-> `ShopOrders` = đơn con tách theo từng shop — Seller chỉ thấy và thao tác phần của mình.  
-> `OrderItemBatches` ghi nhận lô hàng nào được xuất (theo FEFO).
-
-```mermaid
-erDiagram
-  Orders {
-    int       Id              PK
-    int       BuyerId         FK
-    string    PaymentMethod
-    string    PaymentStatus
-    float     GrandTotal
-    string    Note
-    datetime  CreatedAt
-    datetime  UpdatedAt
-  }
-
-  ShopOrders {
-    int       Id              PK
-    int       OrderId         FK
-    int       ShopId          FK
-    string    ShipReceiverName
-    string    ShipPhone
-    string    ShipProvince
-    string    ShipDistrict
-    string    ShipWard
-    string    ShipDetail
-    float     SubTotal
-    float     ShippingFee
-    float     Total
-    string    Status
-    string    TrackingCode
-    datetime  CreatedAt
-    datetime  UpdatedAt
-  }
-
-  OrderItems {
-    int       Id              PK
-    int       ShopOrderId     FK
-    int       VariantId       FK
-    string    SnapshotName
-    string    SnapshotSKU
-    float     SnapshotPrice
-    string    SnapshotImage
-    int       Quantity
-    float     LineTotal
-  }
-
-  OrderItemBatches {
-    int       Id                  PK
-    int       OrderItemId         FK
-    int       ImportOrderItemId   FK
-    int       QuantityUsed
-    string    ExpirySnapshot
-  }
-
-  Orders     ||--o{ ShopOrders       : "splits into"
-  ShopOrders ||--o{ OrderItems        : "contains"
-  OrderItems ||--o{ OrderItemBatches  : "sourced from"
-```
-
-**Ghi chú:**
-- `ShipReceiverName` → `ShipDetail`: **Snapshot địa chỉ** — lưu thẳng lúc checkout, không dùng FK tới `Addresses`
-- `SnapshotName`, `SnapshotPrice`, `SnapshotSKU`, `SnapshotImage`: **Snapshot sản phẩm** — Seller tăng giá sau không ảnh hưởng đơn cũ
-- `Status` của `ShopOrders`: `"Pending"` → `"Confirmed"` → `"Shipping"` → `"Delivered"` | `"Cancelled"`
-- `TrackingCode`: Mã vận đơn shipper — Seller điền khi giao hàng
-- `LineTotal` = `SnapshotPrice × Quantity`
-- `GrandTotal` = cộng dồn `Total` của tất cả `ShopOrders` trong phiên
-- `ExpirySnapshot`: Lưu hạn sử dụng lô lúc xuất — dùng để in phiếu giao hàng
-
----
-
-## Nhóm 7 — Thanh toán & Doanh thu
-
-> `Payments` lưu giao dịch thanh toán để đối soát với cổng thanh toán.  
-> `PlatformRevenue` là nguồn dữ liệu chính cho dashboard Admin — tự sinh khi `ShopOrders` hoàn thành.
-
-```mermaid
-erDiagram
-  Payments {
-    int       Id              PK
-    int       OrderId         FK
-    string    Method
-    string    Status
-    float     Amount
-    string    TransactionId
-    string    GatewayResponse
-    datetime  PaidAt
-    datetime  CreatedAt
-    datetime  UpdatedAt
-  }
-
-  PlatformRevenue {
-    int       Id              PK
-    int       ShopOrderId     FK
-    int       ShopId          FK
-    float     OrderTotal
-    float     CommissionRate
-    float     CommissionAmount
-    string    Status
-    datetime  CreatedAt
-  }
-```
-
-**Ghi chú:**
-- `Method`: `"COD"` | `"VNPay"` | `"MoMo"`
-- `TransactionId`: Mã giao dịch từ cổng thanh toán — dùng để đối soát khi có khiếu nại
-- `GatewayResponse`: Toàn bộ JSON response từ cổng — lưu để debug tranh chấp
-- `CommissionRate`: **Snapshot** từ `Shops.CommissionRate` lúc đó — Admin thay đổi rate sau không ảnh hưởng lịch sử
-- `CommissionAmount` = `OrderTotal × CommissionRate` — doanh thu thực tế của sàn
-- `Status` doanh thu: `"Pending"` (đơn chưa giao) | `"Settled"` (đã chốt, sàn nhận tiền)
-- **Dashboard Admin**: `SUM(CommissionAmount) GROUP BY tháng / shop`
-- **Dashboard Seller**: Doanh thu ròng = `Total − CommissionAmount`; Lợi nhuận = Doanh thu ròng − `(CostPrice × Quantity)`
-
----
-
-## Nhóm 8 — Đánh giá & Thông báo
-
-> `Reviews` chỉ cho phép Buyer đã mua mới được đánh giá — xác thực qua `OrderItemId` (verified purchase).  
-> `Notifications` lưu thông báo hệ thống: sắp hết hạn lô hàng, đơn hàng mới, thanh toán thành công...
-
-```mermaid
-erDiagram
-  Reviews {
-    int       Id              PK
-    int       BuyerId         FK
-    int       ProductId       FK
-    int       OrderItemId     FK
-    int       Rating
-    string    Comment
-    string    Images
-    datetime  CreatedAt
-    datetime  UpdatedAt
-    datetime  DeletedAt
-  }
-
-  Notifications {
-    int       Id              PK
-    int       UserId          FK
-    string    Type
-    string    Title
-    string    Body
-    bool      IsRead
-    datetime  CreatedAt
-  }
-```
-
-**Ghi chú:**
-- `OrderItemId`: Liên kết dòng đơn hàng đã mua — đảm bảo **verified purchase**, mỗi `OrderItem` chỉ review 1 lần
-- `Rating`: 1–5 sao — tổng hợp lên `Products.Rating` và `Shops.Rating`
-- `DeletedAt` của Reviews: Admin có thể ẩn đánh giá vi phạm mà không mất dữ liệu
-- `Type` của Notifications: `"OrderNew"` | `"OrderDelivered"` | `"BatchNearExpiry"` | `"PaymentSuccess"` | `"ReviewReceived"`
-- `IsRead`: Đánh dấu đã đọc — hiển thị badge số thông báo chưa đọc
-
----
-
-## Tổng quan 18 bảng
-
-| # | Nhóm | Bảng | Số bảng |
-|---|------|------|---------|
-| 1 | Người dùng & Địa chỉ | `Users`, `Addresses` | 2 |
-| 2 | Gian hàng & Danh mục | `Shops`, `Categories` | 2 |
-| 3 | Sản phẩm | `Products`, `ProductVariants`, `ProductAttributes` | 3 |
-| 4 | Nhập hàng & Lô hàng | `ImportOrders`, `ImportOrderItems` | 2 |
-| 5 | Giỏ hàng | `Carts`, `CartItems` | 2 |
-| 6 | Đơn hàng | `Orders`, `ShopOrders`, `OrderItems`, `OrderItemBatches` | 4 |
-| 7 | Thanh toán & Doanh thu | `Payments`, `PlatformRevenue` | 2 |
-| 8 | Đánh giá & Thông báo | `Reviews`, `Notifications` | 2 |
-| | **Tổng** | | **18** |
+    ShopOrders ||--o{ PlatformRevenues : "calculated from"
+    Shops ||--o{ PlatformRevenues : "generates"
